@@ -41,6 +41,7 @@ beforeAll(async () => {
   server = await startServer({
     WHOOP_API_BASE: mock.url,
     WHOOP_TOKEN_FILE: tokenFile,
+    WHOOP_CONFIG_DIR: join(tmpdir(), `whoop-test-config-${process.pid}`),
     WHOOP_CLIENT_ID: "cid",
     WHOOP_CLIENT_SECRET: "secret",
     // Pin the server timezone so date-only expansion is deterministic and provably local.

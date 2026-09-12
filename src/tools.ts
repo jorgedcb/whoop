@@ -3,9 +3,9 @@
  */
 import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
-import { whoopGet, type Paginated } from "./whoop";
-import * as s from "./schemas";
-import { dateOrDatetime, toIso } from "./dates";
+import { whoopGet, type Paginated } from "./whoop.js";
+import * as s from "./schemas.js";
+import { dateOrDatetime, toIso } from "./dates.js";
 
 // ---- Input helpers ----
 

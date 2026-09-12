@@ -35,3 +35,6 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # WHOOP OAuth tokens (written by `bun run auth`)
 .whoop-tokens.json
+
+# compiled output
+build

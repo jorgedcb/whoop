@@ -1,21 +1,46 @@
 {
-  "name": "whoop",
-  "module": "src/index.ts",
+  "name": "@jorgedcb/whoop-mcp",
+  "version": "0.1.0",
+  "description": "MCP server for the WHOOP API: recovery, sleep, strain, workouts and profile for any MCP client",
+  "license": "MIT",
   "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest",
-    "@types/node": "^22.20.2",
-    "typescript": "^7.0.2"
+  "bin": {
+    "whoop-mcp": "./build/index.js"
+  },
+  "files": [
+    "build"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jorgedcb/whoop.git"
+  },
+  "keywords": [
+    "whoop",
+    "mcp",
+    "model-context-protocol",
+    "health",
+    "fitness",
+    "claude"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "prepublishOnly": "bun run test && bun run build",
+    "auth": "bun run src/index.ts auth",
+    "status": "bun run src/index.ts status",
+    "start": "bun run src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.0.0",
     "zod": "^4.6.2"
   },
-  "scripts": {
-    "auth": "bun run src/auth.ts",
-    "start": "bun run src/index.ts",
-    "typecheck": "tsc --noEmit",
-    "test": "bun test"
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/node": "^22.20.2",
+    "typescript": "^7.0.2"
   }
 }

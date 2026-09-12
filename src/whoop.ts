@@ -1,77 +1,31 @@
 /**
- * Minimal WHOOP API client.
- *
- * Reads OAuth tokens from a local JSON file (written once by `bun run auth`),
- * refreshes the access token when it is about to expire, and exposes a
- * typed `get` helper for the v2 developer endpoints.
+ * Minimal WHOOP API client: bearer auth with automatic refresh, plus a typed
+ * GET helper for the v2 developer endpoints.
  */
-
-import { resolve } from "node:path";
+import { getCredentials, loadTokens, saveTokens, type StoredTokens, type TokenResponse } from "./config.js";
 
 /** Override with WHOOP_API_BASE (tests point this at a local mock). Empty values fall back to the default. */
 const API_BASE = (process.env.WHOOP_API_BASE || "https://api.prod.whoop.com").replace(/\/+$/, "");
 export const TOKEN_URL = `${API_BASE}/oauth/oauth2/token`;
 export const AUTH_URL = `${API_BASE}/oauth/oauth2/auth`;
-/**
- * Override with WHOOP_TOKEN_FILE (resolved against the cwd if relative).
- * Defaults to .whoop-tokens.json in the project root.
- */
-export const TOKEN_FILE = process.env.WHOOP_TOKEN_FILE
-  ? resolve(process.env.WHOOP_TOKEN_FILE)
-  : new URL("../.whoop-tokens.json", import.meta.url).pathname;
 
-export interface StoredTokens {
-  access_token: string;
-  refresh_token: string;
-  /** Unix ms timestamp when access_token expires. */
-  expires_at: number;
-  scope: string;
-}
-
-function requireEnv(name: string): string {
-  const value = process.env[name];
-  if (!value) throw new Error(`Missing environment variable ${name}. Copy .env.example to .env and fill it in.`);
-  return value;
-}
-
-export interface TokenResponse {
-  access_token: string;
-  refresh_token: string;
-  expires_in: number;
-  scope: string;
-}
-
-export async function saveTokens(raw: TokenResponse): Promise<StoredTokens> {
-  const tokens: StoredTokens = {
-    access_token: raw.access_token,
-    refresh_token: raw.refresh_token,
-    expires_at: Date.now() + raw.expires_in * 1000,
-    scope: raw.scope,
-  };
-  await Bun.write(TOKEN_FILE, JSON.stringify(tokens, null, 2));
-  return tokens;
-}
-
-async function loadTokens(): Promise<StoredTokens> {
-  const file = Bun.file(TOKEN_FILE);
-  if (!(await file.exists())) {
-    throw new Error(`No WHOOP tokens found at ${TOKEN_FILE}. Run \`bun run auth\` first.`);
-  }
-  return (await file.json()) as StoredTokens;
+export interface Paginated<T> {
+  records: T[];
+  next_token?: string;
 }
 
 async function refreshTokens(refreshToken: string): Promise<StoredTokens> {
-  const body = new URLSearchParams({
-    grant_type: "refresh_token",
-    client_id: requireEnv("WHOOP_CLIENT_ID"),
-    client_secret: requireEnv("WHOOP_CLIENT_SECRET"),
-    scope: "offline",
-    refresh_token: refreshToken,
-  });
+  const creds = await getCredentials();
   const res = await fetch(TOKEN_URL, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body,
+    body: new URLSearchParams({
+      grant_type: "refresh_token",
+      client_id: creds.client_id,
+      client_secret: creds.client_secret,
+      scope: "offline",
+      refresh_token: refreshToken,
+    }),
   });
   if (!res.ok) {
     throw new Error(`WHOOP token refresh failed (${res.status}): ${await res.text()}`);
@@ -79,11 +33,20 @@ async function refreshTokens(refreshToken: string): Promise<StoredTokens> {
   return saveTokens((await res.json()) as TokenResponse);
 }
 
+/**
+ * In-flight refresh shared by concurrent callers. WHOOP refresh tokens are single-use,
+ * so two parallel tool calls must not each POST the same refresh_token.
+ */
+let refreshing: Promise<StoredTokens> | undefined;
+
 /** Returns a valid access token, refreshing it if it expires within 60 seconds. */
 async function getAccessToken(): Promise<string> {
   let tokens = await loadTokens();
   if (Date.now() > tokens.expires_at - 60_000) {
-    tokens = await refreshTokens(tokens.refresh_token);
+    refreshing ??= refreshTokens(tokens.refresh_token).finally(() => {
+      refreshing = undefined;
+    });
+    tokens = await refreshing;
   }
   return tokens.access_token;
 }
@@ -103,10 +66,4 @@ export async function whoopGet<T>(
     throw new Error(`WHOOP API ${path} failed (${res.status}): ${await res.text()}`);
   }
   return (await res.json()) as T;
-}
-
-
-export interface Paginated<T> {
-  records: T[];
-  next_token?: string;
 }
