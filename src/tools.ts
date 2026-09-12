@@ -5,34 +5,19 @@ import type { McpServer } from "@modelcontextprotocol/server";
 import { z } from "zod";
 import { whoopGet, type Paginated } from "./whoop";
 import * as s from "./schemas";
+import { dateOrDatetime, toIso } from "./dates";
 
 // ---- Input helpers ----
-
-const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
-
-/** Accepts `YYYY-MM-DD` (local time) or a full ISO 8601 datetime. */
-const dateOrDatetime = z
-  .string()
-  .refine((v) => DATE_ONLY.test(v) || !Number.isNaN(Date.parse(v)), {
-    message: "Expected YYYY-MM-DD or an ISO 8601 datetime",
-  });
-
-/**
- * Expand a date-only string to an ISO datetime at local midnight.
- * For `end`, a date-only value is treated as inclusive (midnight of the next day).
- */
-function toIso(value: string | undefined, boundary: "start" | "end"): string | undefined {
-  if (value === undefined) return undefined;
-  if (!DATE_ONLY.test(value)) return new Date(value).toISOString();
-  const [y, m, d] = value.split("-").map(Number) as [number, number, number];
-  return new Date(y, m - 1, d + (boundary === "end" ? 1 : 0)).toISOString();
-}
 
 /** Query parameters shared by every paginated WHOOP collection endpoint. */
 const rangeInput = z.object({
   limit: z.number().int().min(1).max(25).default(10).describe("Number of records to return (max 25)"),
-  start: dateOrDatetime.optional().describe("Earliest record, inclusive. YYYY-MM-DD (local) or ISO 8601 datetime"),
-  end: dateOrDatetime.optional().describe("Latest record. YYYY-MM-DD is inclusive of that day; ISO datetime is exclusive"),
+  start: dateOrDatetime
+    .optional()
+    .describe("Earliest record, inclusive. YYYY-MM-DD or ISO 8601 datetime; values without an offset are local time"),
+  end: dateOrDatetime
+    .optional()
+    .describe("Latest record. YYYY-MM-DD is inclusive of that day; ISO datetime is exclusive (local time if no offset)"),
   next_token: z.string().optional().describe("Pagination token from a previous response"),
 });
 type RangeInput = z.infer<typeof rangeInput>;

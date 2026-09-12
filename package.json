@@ -15,6 +15,7 @@
   "scripts": {
     "auth": "bun run src/auth.ts",
     "start": "bun run src/index.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "bun test"
   }
 }

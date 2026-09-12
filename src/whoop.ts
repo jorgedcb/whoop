@@ -6,10 +6,19 @@
  * typed `get` helper for the v2 developer endpoints.
  */
 
-const API_BASE = "https://api.prod.whoop.com";
+import { resolve } from "node:path";
+
+/** Override with WHOOP_API_BASE (tests point this at a local mock). Empty values fall back to the default. */
+const API_BASE = (process.env.WHOOP_API_BASE || "https://api.prod.whoop.com").replace(/\/+$/, "");
 export const TOKEN_URL = `${API_BASE}/oauth/oauth2/token`;
 export const AUTH_URL = `${API_BASE}/oauth/oauth2/auth`;
-export const TOKEN_FILE = new URL("../.whoop-tokens.json", import.meta.url).pathname;
+/**
+ * Override with WHOOP_TOKEN_FILE (resolved against the cwd if relative).
+ * Defaults to .whoop-tokens.json in the project root.
+ */
+export const TOKEN_FILE = process.env.WHOOP_TOKEN_FILE
+  ? resolve(process.env.WHOOP_TOKEN_FILE)
+  : new URL("../.whoop-tokens.json", import.meta.url).pathname;
 
 export interface StoredTokens {
   access_token: string;
