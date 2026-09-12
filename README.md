@@ -17,14 +17,22 @@ You need Node 20 or newer and a WHOOP account.
 
 WHOOP does not offer a shared public app, so each user registers their own. It takes two minutes.
 
-1. Go to the [WHOOP developer dashboard](https://developer-dashboard.whoop.com) and sign in with your WHOOP account.
-2. Create an app. Name and description can be anything.
-3. Under **Redirect URIs**, add exactly:
-   ```
-   http://localhost:3000/callback
-   ```
-4. Enable every **read** scope: `read:recovery`, `read:cycles`, `read:sleep`, `read:workout`, `read:profile`, `read:body_measurement`. Also make sure `offline` is available so you get a refresh token.
-5. Copy the **Client ID** and **Client Secret**.
+1. Go to [developer-dashboard.whoop.com/apps/create](https://developer-dashboard.whoop.com/apps/create) and sign in with your normal WHOOP account.
+2. Fill in the form. Only these fields matter:
+
+   | Field | What to enter |
+   |---|---|
+   | **Name** | Anything, e.g. `My MCP server`. Only you will see it. |
+   | **Logo** | Leave empty. |
+   | **Contacts** | Your email address. |
+   | **Privacy policy** | `https://github.com/jorgedcb/whoop/blob/main/PRIVACY.md` (it explains that all data stays on your machine) |
+   | **Redirect URLs** | `http://localhost:3000/callback` exactly. The placeholder suggests https, but http on localhost is accepted. |
+   | **Scopes** | Tick all six: `read:recovery`, `read:cycles`, `read:sleep`, `read:workout`, `read:profile`, `read:body_measurement`. |
+   | **Webhooks** | Leave empty. |
+
+3. Click **Create App**. The app page then shows your **Client ID** and **Client Secret**. Keep that page open for the next step.
+
+You do not need to look for an `offline` scope. The CLI requests it during login so it can refresh tokens without asking you to sign in again.
 
 ### 2. Connect your account
 
