@@ -37,7 +37,7 @@ You do not need to look for an `offline` scope. The CLI requests it during login
 ### 2. Connect your account
 
 ```bash
-npx @jorgedcb/whoop-mcp auth
+npx @jorgecastilla/whoop-mcp auth
 ```
 
 Paste the client ID and secret when prompted. A browser tab opens for WHOOP login and consent.
@@ -47,7 +47,7 @@ with owner-only permissions. You will not need to do this again.
 Check the result at any time:
 
 ```bash
-npx @jorgedcb/whoop-mcp status
+npx @jorgecastilla/whoop-mcp status
 ```
 
 ### 3. Add the server to your MCP client
@@ -59,7 +59,7 @@ npx @jorgedcb/whoop-mcp status
   "mcpServers": {
     "whoop": {
       "command": "npx",
-      "args": ["-y", "@jorgedcb/whoop-mcp"]
+      "args": ["-y", "@jorgecastilla/whoop-mcp"]
     }
   }
 }
@@ -70,7 +70,7 @@ Quit and reopen Claude Desktop. The tools appear under the tools icon in a new c
 **Claude Code.**
 
 ```bash
-claude mcp add --scope user whoop -- npx -y @jorgedcb/whoop-mcp
+claude mcp add --scope user whoop -- npx -y @jorgecastilla/whoop-mcp
 ```
 
 **Cursor and others.** Any client that launches stdio MCP servers works with the same command and arguments.
@@ -121,7 +121,7 @@ A `.env` file is not read.
 ## Troubleshooting
 
 **"No WHOOP tokens found"** means `auth` has not run for the config directory the server is
-using. Run `npx @jorgedcb/whoop-mcp status` to see which directory that is.
+using. Run `npx @jorgecastilla/whoop-mcp status` to see which directory that is.
 
 **"redirect_uri mismatch" during auth** means the URI registered on your WHOOP app differs
 from the one the CLI is using. Both must be exactly `http://localhost:3000/callback`, or set

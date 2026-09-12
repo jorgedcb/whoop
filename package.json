@@ -1,5 +1,5 @@
 {
-  "name": "@jorgedcb/whoop-mcp",
+  "name": "@jorgecastilla/whoop-mcp",
   "version": "0.1.0",
   "description": "MCP server for the WHOOP API: recovery, sleep, strain, workouts and profile for any MCP client",
   "license": "MIT",
