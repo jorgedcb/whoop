@@ -1,17 +1,20 @@
 {
   "name": "whoop",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "type": "module",
   "private": true,
   "devDependencies": {
     "@types/bun": "latest",
-    "@types/node": "^22.20.2"
-  },
-  "peerDependencies": {
+    "@types/node": "^22.20.2",
     "typescript": "^7.0.2"
   },
   "dependencies": {
     "@modelcontextprotocol/server": "^2.0.0",
     "zod": "^4.6.2"
+  },
+  "scripts": {
+    "auth": "bun run src/auth.ts",
+    "start": "bun run src/index.ts",
+    "typecheck": "tsc --noEmit"
   }
 }
