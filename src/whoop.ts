@@ -96,26 +96,8 @@ export async function whoopGet<T>(
   return (await res.json()) as T;
 }
 
-// ---- Response types for the endpoints we use ----
 
 export interface Paginated<T> {
   records: T[];
   next_token?: string;
-}
-
-export interface Recovery {
-  cycle_id: number;
-  sleep_id: string;
-  user_id: number;
-  created_at: string;
-  updated_at: string;
-  score_state: "SCORED" | "PENDING_SCORE" | "UNSCORABLE";
-  score?: {
-    user_calibrating: boolean;
-    recovery_score: number;
-    resting_heart_rate: number;
-    hrv_rmssd_milli: number;
-    spo2_percentage?: number;
-    skin_temp_celsius?: number;
-  };
 }
