@@ -5,7 +5,7 @@
   "license": "MIT",
   "type": "module",
   "bin": {
-    "whoop-mcp": "./build/index.js"
+    "whoop-mcp": "build/index.js"
   },
   "files": [
     "build"
