@@ -45,8 +45,9 @@ async function collectCredentials(): Promise<Credentials> {
     throw new Error("No credentials found and no terminal to prompt. Set WHOOP_CLIENT_ID and WHOOP_CLIENT_SECRET.");
   }
 
-  console.log("Create an app at https://developer-dashboard.whoop.com and paste its credentials.");
-  console.log(`Make sure the app's redirect URI includes: ${creds.redirect_uri}\n`);
+  console.log("Create an app at https://developer-dashboard.whoop.com and paste its credentials.\n");
+  console.log(`Redirect URI: ${creds.redirect_uri}`);
+  console.log("Add exactly this URI to your WHOOP app. To use a different one, set WHOOP_REDIRECT_URI.\n");
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   // Without a listener, readline on Node < 20.19.5 / 22.15 swallows Ctrl+C and the pending
   // question never settles, so the process would exit 0 as if auth had succeeded.
@@ -57,8 +58,7 @@ async function collectCredentials(): Promise<Credentials> {
   try {
     const client_id = creds.client_id || (await rl.question("Client ID: ")).trim();
     const client_secret = creds.client_secret || (await rl.question("Client secret: ")).trim();
-    const answer = (await rl.question(`Redirect URI [${creds.redirect_uri}]: `)).trim();
-    const redirect_uri = answer || creds.redirect_uri;
+    const redirect_uri = creds.redirect_uri;
     if (!client_id || !client_secret) throw new Error("Client ID and secret are required.");
     return { client_id, client_secret, redirect_uri };
   } finally {
